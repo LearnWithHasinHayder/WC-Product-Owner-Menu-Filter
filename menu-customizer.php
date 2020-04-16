@@ -22,6 +22,9 @@ function mcp_load() {
 add_action( 'plugins_loaded', 'mcp_load' );
 
 function mcp_init() {
+    if ( !class_exists( 'WooCommerce' ) ) {
+        return;
+    }
     global $wpdb;
     $products = $wpdb->get_results( "SELECT ID, post_title as name from {$wpdb->prefix}posts WHERE post_status='publish' and post_type='product'", ARRAY_A );
     $_products = array( 0 => 'Always Display' );
@@ -40,6 +43,9 @@ function mcp_init() {
 add_action( 'carbon_fields_register_fields', 'mcp_init', 999999 );
 
 add_filter( 'wp_get_nav_menu_items', function ( $items ) {
+    if ( !class_exists( 'WooCommerce' ) ) {
+        return $items;
+    }
     $to_hide = array();
     if ( !is_admin() ) {
         foreach ( $items as $key => $item ) {
@@ -71,5 +77,12 @@ add_action( 'wp_footer', function () {
     $_products[] = [$product->get_name(),$product->get_id()];
     }
     D::print_r($_products); */
+    global $wpdb;
+    $_posts = $wpdb->get_results("SELECT ID, post_title from {$wpdb->prefix}posts WHERE post_status='publish' and post_type='post'",ARRAY_A);
+    $posts = [];
+    foreach($_posts as $_post){
+        $posts[$_post['ID']] = $_post['post_title'];
+    }
+    D::print_r($posts);
     D::dumpInConsole();
 } );
